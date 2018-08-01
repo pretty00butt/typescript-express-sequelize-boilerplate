@@ -12,16 +12,16 @@ export const login = async (
     const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({
+        const _user = await User.findOne({
             where: {
                 email
             }
         });
 
-        if (!user) {
+        if (!_user) {
             next(new createError.NotFound("사용자를 찾을 수 없습니다."));
         } else {
-            const valid = bcrypt.compareSync(user.password, password);
+            const valid = bcrypt.compareSync(_user.password, password);
             if (!valid) {
                 next(
                     new createError.Unauthorized(
@@ -29,11 +29,11 @@ export const login = async (
                     )
                 );
             } else {
-                const userObj = user.get();
-                delete userObj.password;
-                const token = createToken(userObj);
+                const user = _user.get();
+                delete user.password;
+                const token = createToken(user);
                 res.json({
-                    user: userObj,
+                    user,
                     token
                 });
             }
